@@ -88,7 +88,7 @@ knex.schema
             table.uuid('comment_id').defaultTo(knex.fn.uuid())
             table.string('note_id')
             table.foreign('note_id').references('Notes.note_id_in_notes')
-            table.string('book_id')
+            table.integer('book_id')
             table.foreign('book_id').references('Books.isbn_in_books')
             table.string('comment')
             table.datetime('time_created')
