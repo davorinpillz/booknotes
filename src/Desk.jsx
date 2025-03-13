@@ -73,6 +73,7 @@ export default function Desk() {
   //book collection db functions
   function getSearchBook() {
     axios.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&key=AIzaSyB3gJ000xrR9_kYY7Dv7I7Vk6uU7mkOdyE`).then(function(response) {
+      console.log(response)
       setFoundBook(response.data.items[0].volumeInfo)
     })
     .catch(function (error) {
