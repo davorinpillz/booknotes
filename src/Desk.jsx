@@ -82,7 +82,7 @@ export default function Desk() {
     })
   }
   function addToCollection() {
-    axios.post('http://booknotes-db:10000/create', {
+    axios.post('https://booknotes-cd7a.onrender.com/create', {
       author: foundBook.authors[0],
       title: foundBook.title,
       isbn: foundBook.industryIdentifiers[1].identifier,
@@ -98,7 +98,7 @@ export default function Desk() {
     })  
   }
   function getCollection() {
-    axios.get('http://booknotes-db:10000/all')
+    axios.get('https://booknotes-cd7a.onrender.com/all')
     .then(function(response) {
       setBooks(response.data)
     })
@@ -376,7 +376,7 @@ function BookNotes ( { book } ) {
   const [reloadFlag, setReloadFlag] = useState('')
   //note db functions
   function addNoteToBook() {
-    axios.post(`http://booknotes-db:10000/:${book.isbn}/addnote`, {
+    axios.post(`https://booknotes-cd7a.onrender.com/:${book.isbn}/addnote`, {
       book_id: book.isbn,
       note: inputNote,
     })
@@ -389,7 +389,7 @@ function BookNotes ( { book } ) {
     .finally(getNotesForBook)  
   }
   function addChapterTitle(n) {
-    axios.put(`http://booknotes-db:10000/addtitle`, {
+    axios.put(`https://booknotes-cd7a.onrender.com/addtitle`, {
       title: title,
       noteId: n.note_id,
     })
@@ -402,7 +402,7 @@ function BookNotes ( { book } ) {
     .finally(setNote(''))
   }
   function addPageNumber(n) {
-    axios.put(`http://booknotes-db:10000/addpagenumber`, {
+    axios.put(`https://booknotes-cd7a.onrender.com/addpagenumber`, {
       pageNumber: pageNumber,
       noteId: n.note_id,
     })
@@ -415,7 +415,7 @@ function BookNotes ( { book } ) {
     .finally(setNote(''))
   }
   function addComment(n) {
-    axios.post(`http://booknotes-db:10000/addcomment`, {
+    axios.post(`https://booknotes-cd7a.onrender.com/addcomment`, {
       comment: comment,
       noteId: n.note_id,
       bookId: n.book_id,
@@ -432,7 +432,7 @@ function BookNotes ( { book } ) {
   console.log(reference)
   function addCrossReference() {
     if (reference.length == 2) {
-      axios.post(`http://booknotes-db:10000/crossreference`, {
+      axios.post(`https://booknotes-cd7a.onrender.com/crossreference`, {
         first_note_id: reference[0][0],
         first_book_id: reference[0][1],
         first_book_chapter: reference[0][2],
@@ -454,7 +454,7 @@ function BookNotes ( { book } ) {
     else console.log("not ready")
   }
   function getNotesForBook() {
-    axios.get(`http://booknotes-db:10000/${book.isbn}/notes`)
+    axios.get(`https://booknotes-cd7a.onrender.com/${book.isbn}/notes`)
     .then(function(response) {
       setNotes(response.data)
     })
@@ -463,7 +463,7 @@ function BookNotes ( { book } ) {
     })
   }
   function getCommentsForBook() {
-    axios.get(`http://booknotes-db:10000/${book.isbn}/bookcomments`)
+    axios.get(`https://booknotes-cd7a.onrender.com/${book.isbn}/bookcomments`)
     .then(function(response) {
       setComments(response.data)
     })
@@ -472,7 +472,7 @@ function BookNotes ( { book } ) {
     })
   }
   function getNoteReferencesForBook() {
-    axios.get(`http://booknotes-db:10000/${book.isbn}/noterefs`)
+    axios.get(`https://booknotes-cd7a.onrender.com/${book.isbn}/noterefs`)
     .then(function(response) {
       setRefs(response.data)
     })
@@ -596,7 +596,7 @@ function Note ( {
   //TO DO MERGE INTO SINGLE POINT
   function getSingleRef(id) {
     console.log(id)
-    axios.get(`http://booknotes-db:10000/singleref`, {
+    axios.get(`https://booknotes-cd7a.onrender.com/singleref`, {
       params: {
         noteId: [id]
       },
@@ -613,7 +613,7 @@ function Note ( {
   }
   function getNoteRef(ids) {
     console.log(ids)
-    axios.get(`http://booknotes-db:10000/noteref`, {
+    axios.get(`https://booknotes-cd7a.onrender.com/noteref`, {
       params: {
         noteId: [ids]
       },
