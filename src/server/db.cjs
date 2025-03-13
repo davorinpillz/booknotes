@@ -1,3 +1,8 @@
+
+import { Database } from '@sqlitecloud/drivers';
+
+const db = new Database("sqlitecloud://cqyy0mfhhk.g4.sqlite.cloud:8860/chinook.sqlite?apikey=YyF0VXGL8ZGHaLpaRypZWfU54QlXIz0APa7Uw4f1mPQ");
+
 const path = require('path')
 const dbPath = path.resolve(__dirname, './db.sqlite')
 
@@ -5,7 +10,7 @@ const dbPath = path.resolve(__dirname, './db.sqlite')
 const knex = require('knex')({
     client: 'sqlite3',
     connection: {
-      filename: dbPath,
+      filename: db,
     },
     useNullAsDefault: true
   })
