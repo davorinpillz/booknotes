@@ -98,7 +98,7 @@ export default function Desk() {
     })  
   }
   function getCollection() {
-    axios.get('http://localhost:4001/all')
+    axios.get('https://bn-jycf.onrender.com/all')
     .then(function(response) {
       setBooks(response.data)
     })
