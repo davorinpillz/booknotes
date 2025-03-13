@@ -376,7 +376,7 @@ function BookNotes ( { book } ) {
   const [reloadFlag, setReloadFlag] = useState('')
   //note db functions
   function addNoteToBook() {
-    axios.post(`http://localhost:4001/:${book.isbn}/addnote`, {
+    axios.post(`https://bn-jycf.onrender.com/:${book.isbn}/addnote`, {
       book_id: book.isbn,
       note: inputNote,
     })
@@ -389,7 +389,7 @@ function BookNotes ( { book } ) {
     .finally(getNotesForBook)  
   }
   function addChapterTitle(n) {
-    axios.put(`http://localhost:4001/addtitle`, {
+    axios.put(`https://bn-jycf.onrender.com/addtitle`, {
       title: title,
       noteId: n.note_id,
     })
@@ -402,7 +402,7 @@ function BookNotes ( { book } ) {
     .finally(setNote(''))
   }
   function addPageNumber(n) {
-    axios.put(`http://localhost:4001/addpagenumber`, {
+    axios.put(`https://bn-jycf.onrender.com/addpagenumber`, {
       pageNumber: pageNumber,
       noteId: n.note_id,
     })
@@ -415,7 +415,7 @@ function BookNotes ( { book } ) {
     .finally(setNote(''))
   }
   function addComment(n) {
-    axios.post(`http://localhost:4001/addcomment`, {
+    axios.post(`https://bn-jycf.onrender.com/addcomment`, {
       comment: comment,
       noteId: n.note_id,
       bookId: n.book_id,
@@ -432,7 +432,7 @@ function BookNotes ( { book } ) {
   console.log(reference)
   function addCrossReference() {
     if (reference.length == 2) {
-      axios.post(`http://localhost:4001/crossreference`, {
+      axios.post(`https://bn-jycf.onrender.com/crossreference`, {
         first_note_id: reference[0][0],
         first_book_id: reference[0][1],
         first_book_chapter: reference[0][2],
@@ -454,7 +454,7 @@ function BookNotes ( { book } ) {
     else console.log("not ready")
   }
   function getNotesForBook() {
-    axios.get(`http://localhost:4001/${book.isbn}/notes`)
+    axios.get(`https://bn-jycf.onrender.com/${book.isbn}/notes`)
     .then(function(response) {
       setNotes(response.data)
     })
@@ -463,7 +463,7 @@ function BookNotes ( { book } ) {
     })
   }
   function getCommentsForBook() {
-    axios.get(`http://localhost:4001/${book.isbn}/bookcomments`)
+    axios.get(`https://bn-jycf.onrender.com/${book.isbn}/bookcomments`)
     .then(function(response) {
       setComments(response.data)
     })
@@ -472,7 +472,7 @@ function BookNotes ( { book } ) {
     })
   }
   function getNoteReferencesForBook() {
-    axios.get(`http://localhost:4001/${book.isbn}/noterefs`)
+    axios.get(`https://bn-jycf.onrender.com/${book.isbn}/noterefs`)
     .then(function(response) {
       setRefs(response.data)
     })
@@ -596,7 +596,7 @@ function Note ( {
   //TO DO MERGE INTO SINGLE POINT
   function getSingleRef(id) {
     console.log(id)
-    axios.get(`http://localhost:4001/singleref`, {
+    axios.get(`https://bn-jycf.onrender.com/singleref`, {
       params: {
         noteId: [id]
       },
@@ -613,7 +613,7 @@ function Note ( {
   }
   function getNoteRef(ids) {
     console.log(ids)
-    axios.get(`http://localhost:4001/noteref`, {
+    axios.get(`https://bn-jycf.onrender.com/noteref`, {
       params: {
         noteId: [ids]
       },
