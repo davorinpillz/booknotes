@@ -11,6 +11,7 @@ import PinIcon from '@mui/icons-material/Pin';
 import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import IconButton from '@mui/material/IconButton';
+import ShareIcon from '@mui/icons-material/Share';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
@@ -21,6 +22,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { DataGrid } from '@mui/x-data-grid';
 import axios from "axios";
+import qs from "qs"
 import { useEffect, useState } from 'react';
 import { create } from 'zustand';
 import { combine } from 'zustand/middleware';
@@ -109,7 +111,7 @@ export default function Desk() {
   //event handlers
   function handleIsbnInput(event) {
     event.preventDefault()
-    setIsbn(event.target.value)
+    setIsbn(e.target.value.replace(/\D/g, ""))
   }
   function handleSearchClick() {
     document.getElementById('isbn-search').value=""
@@ -142,7 +144,9 @@ export default function Desk() {
         fontSize: 16,
         color: "Black",
       }}>
-        <Box>
+      <Typography variant="h2">booknotes</Typography>
+
+        <Box style={{ marginTop: "10px"}}>
           {viewCollectionFlag && !bookSelectedFlag ? 
           <DisplayCollection books={books} onSelectClick={(params) => handleBookSelectClick(params)}/>: bookSelectedFlag ? <SelectedBook book={pickedBook} onReturnClick={() => handleReturnBookClick()}/> : <></>}
         </Box>
@@ -265,6 +269,15 @@ function SelectedBook ( {book, onReturnClick} ) {
             />
           </Tooltip>
         </IconButton>
+        <IconButton style={{ outline: 'none' }}>
+          <Tooltip title="Share notes" arrow>
+            <ShareIcon
+              id="Refs"
+              style={{backgroundColor: 'white', color: 'gray'}}
+              onClick={() => console.log("share placehold")}
+              />
+          </Tooltip>
+        </IconButton>
         </Stack>
       </Paper>
     </Stack>
@@ -324,6 +337,11 @@ const useNoteStore = create(
           reference: [...state.reference, ref]
         }))
       },
+      setEmptyReference: (ref) => {
+        set((state) => ({
+          reference: ref
+        }))
+      },
       setRefs: (ref) => {
         set((state) => ({
           refs: ref
@@ -350,6 +368,7 @@ function BookNotes ( { book } ) {
   const reference = useNoteStore((state) => state.reference)
   const setRefs = useNoteStore((state) => state.setRefs)
   const refs = useNoteStore((state) => state.refs)
+  const setEmptyReference = useNoteStore((state) => state.setEmptyReference)
   //local state
   const [title, setTitle] = useState('')
   const [pageNumber, setPageNumber] = useState('')
@@ -409,6 +428,7 @@ function BookNotes ( { book } ) {
     })
     .finally(setComment(''))
   }
+  console.log(reference)
   function addCrossReference() {
     if (reference.length == 2) {
       axios.post(`http://localhost:4001/crossreference`, {
@@ -428,7 +448,7 @@ function BookNotes ( { book } ) {
       .catch(function(error) {
         console.log(error)
       })
-      .finally(setReference([]))
+      .finally(setEmptyReference([]))
     }
     else console.log("not ready")
   }
@@ -569,8 +589,227 @@ function Note ( {
   const [commentIconClick, setCommentIconClick] = useState(false)
   const [AddLinkIconClick, setAddLinkIconClick] = useState(false)
   const [expandIconClick, setExpandIconClick] = useState(false)
-
-  if (refs.length == 0) {
+  const [expandRefClick, setExpandRefClick] = useState(false)
+  const [refRequest, setRefRequest] = useState([])
+  const [refNotes, setRefNotes] = useState([])
+  //TO DO MERGE INTO SINGLE POINT
+  function getSingleRef(id) {
+    console.log(id)
+    axios.get(`http://localhost:4001/singleref`, {
+      params: {
+        noteId: [id]
+      },
+      paramsSerializer: function (params) {
+        return qs.stringify(params, { arrayFormat: "repeat" })
+      },
+    })
+    .then(function(response) {
+      setRefNotes(response.data)
+    })
+    .catch(function(error) {
+      console.log(error)
+    })
+  }
+  function getNoteRef(ids) {
+    console.log(ids)
+    axios.get(`http://localhost:4001/noteref`, {
+      params: {
+        noteId: [ids]
+      },
+      paramsSerializer: function (params) {
+        return qs.stringify(params, { arrayFormat: "repeat" })
+      },
+    })
+    .then(function(response) {
+      setRefNotes(response.data)
+    })
+    .catch(function(error) {
+      console.log(error)
+    })
+  }
+  //END TO DO
+  console.log(refNotes)
+  function handleRefViewClick() {
+    let noteRefs = refs.filter((ref)=> ref.first_note_id == note.note_id || ref.second_note_id == note.note_id)
+    let firstIds = noteRefs.map((ids) => ids.first_note_id)
+    let secondIds = noteRefs.map((ids) => ids.second_note_id)
+    let idSet = new Set([...firstIds, ...secondIds])
+    let idArray = [...idSet]
+    let filteredIds = idArray.filter((id) => id != note.note_id)
+    setExpandRefClick(!expandRefClick)
+    //setRefRequest(filteredIds)
+    filteredIds.length == 1 ? getSingleRef(filteredIds) : getNoteRef(filteredIds)
+  }
+  if ((refs.length == 0 && note.length != 0)) {
+    return (
+      <Box >
+        <Paper
+        elevation={4}
+        style={{ 
+          padding: 12,
+          marginTop: "10px",
+        }}
+        spacing={2}
+        >
+        <Box >
+          {chapterIconClick ? <AddChapter 
+            onAddChapterClick={onAddChapterClick}
+            setTitle={setTitle}
+            setChapterIconClick={setChapterIconClick}
+            setReloadFlag={setReloadFlag}
+            /> : <></>}
+          <Box>
+            <Typography 
+              style={{fontWeight: 'bold', fontSize: 14, marginBottom: '10px'}}
+            >{note.chapter_title}</Typography>
+          </Box>
+          <Box>
+            <Typography 
+              style={{fontStyle: 'oblique', fontSize: 18}}
+            >{note.note}</Typography>
+          </Box> 
+          <Box >
+          {pageIconClick ? <AddPageNumber 
+            onAddPageNumberClick={onAddPageNumberClick}
+            setPageNumber={setPageNumber}
+            setPageIconClick={setPageIconClick}
+            setReloadFlag={setReloadFlag}
+            /> : <></>}
+          </ Box> 
+          <Box style={{marginBottom: '6px'}}>
+            <Typography 
+              style={{fontStyle: 'normal', fontSize: 12, color: 'gray', marginTop: '10px', marginBottom: '10px'}}
+            >{note.page_number}</Typography>
+          </Box>
+        </Box>
+        <Divider style={{marginBottom: '10px'}}/>
+        {expandIconClick ? 
+          <Box>{comments.filter((comment) => comment.note_id === note.note_id).map(filteredComment => (
+            <Box>
+            <Typography style={{ fontSize: 10, marginBottom: '5px', marginTop: '10px', color: 'gray' }}>
+              {filteredComment.time_created}
+            </Typography>
+            <Typography style={{ marginBottom: '10px' }}>
+              {filteredComment.comment}
+            </Typography>
+            <Divider />
+            </Box>))}
+          </Box> : <></>}
+          <Box >
+            {commentIconClick ? <AddComment 
+              onAddCommentClick={onAddCommentClick}
+              setComment={setComment}
+              setCommentIconClick={setCommentIconClick}
+              comments={comments}
+              setReloadFlag={setReloadFlag}
+              /> : <></>}
+          </ Box> 
+          <Box style={{marginBottom: '6px'}}>
+            <Typography 
+              style={{fontStyle: 'normal', fontSize: 10, color: 'gray'}}
+            ></Typography>
+          </Box>
+        <Stack 
+            direction="row"
+            style={{marginTop: 10, marginBottom: 0, justifyContent: 'center'}}
+        >
+          <IconButton color="primary" aria-label='primary' style={{ outline: 'none' }}>
+            <Tooltip title="Add chapter title" arrow>
+              <AutoStoriesIcon 
+                style={{backgroundColor: 'white', color: 'gray', margin: '3px'}}
+                onClick={() => {setChapterIconClick(!chapterIconClick)}}
+              />
+            </Tooltip>
+          </IconButton>
+          <IconButton color="primary" aria-label='primary' style={{ outline: 'none' }}>
+            <Tooltip title="Add page number" arrow>
+              <PinIcon
+                style={{backgroundColor: 'white', color: 'gray', margin: '3px'}}
+                onClick={() => {setPageIconClick(!pageIconClick)}}
+              />
+            </Tooltip>
+          </IconButton>
+          <IconButton color="primary" aria-label='primary' style={{ outline: 'none' }}>
+            <Tooltip title="Add comment" arrow>
+              <AddCommentIcon
+                id="comment"
+                style={{backgroundColor: 'white', color: 'gray', margin: '3px'}}
+                onClick={() => {setCommentIconClick(!commentIconClick)}}
+              />
+            </Tooltip>
+          </IconButton>
+          <Box>
+            {!expandIconClick ?  
+          <IconButton color="primary" aria-label='primary' style={{ outline: 'none' }}>
+            <Badge color="primary" badgeContent={comments.filter((c) => c.note_id === note.note_id).length}>
+            <Tooltip title="Show comments" arrow>
+              <UnfoldMoreIcon
+                id="expand"
+                style={{backgroundColor: 'white', color: 'gray', margin: '3px'}}
+                onClick={() => {setExpandIconClick(!expandIconClick)}}
+              />
+            </Tooltip>
+            </Badge>
+          </IconButton> : 
+          <IconButton color="primary" aria-label='primary' style={{ outline: 'none' }}>
+            <Tooltip title="Collapse comments" arrow>
+            <UnfoldLessIcon
+              id="collapse"
+              style={{backgroundColor: 'white', color: 'gray', margin: '3px'}}
+              onClick={() => {setExpandIconClick(!expandIconClick)}}
+            />
+            </Tooltip>
+          </IconButton>}
+          </Box>
+          <IconButton color="primary" aria-label='primary' style={{ outline: 'none' }}>
+            <Tooltip title="Link note" arrow>
+              <AddLinkIcon
+              id="Link note"
+              style={{backgroundColor: 'white', color: 'gray'}}
+              onClick={() => 
+                {
+                  setAddLinkIconClick(!AddLinkIconClick); 
+                  setReference([note.note_id, book.isbn, note.chapter_title, note.page_number])
+                }}
+            />
+            </Tooltip>
+          </IconButton>        
+          <IconButton style={{ outline: 'none' }}>
+            <Badge color="primary" badgeContent={0}>
+            <Tooltip title="View referenced notes" arrow>
+              <LinkIcon
+                id="Refs"
+                style={{backgroundColor: 'white', color: 'gray'}}
+                onClick={() => console.log(refs)}
+                />
+            </Tooltip>
+            </Badge>
+          </IconButton>
+          <IconButton style={{ outline: 'none' }}>
+          <Tooltip title="Share note" arrow>
+            <ShareIcon
+              id="Refs"
+              style={{backgroundColor: 'white', color: 'gray'}}
+              onClick={() => console.log("share placehold")}
+              />
+          </Tooltip>
+        </IconButton>
+        </Stack>
+        <Stack>
+          <Box>
+            {refNotes.map((ref) => {return (
+              <Box>
+                <Typography>{ref.title}</Typography>
+                <Typography>{ref.note}</Typography>
+              </Box>
+            )})}
+          </Box>        
+        </Stack>
+        </Paper>
+      </Box>
+    )
+  }
+  else if (refs.length == 0) {
     return (
       <Box style={{ marginTop: "100px" }}>
         <CircularProgress />
@@ -717,17 +956,34 @@ function Note ( {
             <LinkIcon
               id="Refs"
               style={{backgroundColor: 'white', color: 'gray'}}
-              onClick={() => console.log(refs)}
+              onClick={() => handleRefViewClick(note.note_id)}
               />
           </Tooltip>
           </Badge>
         </IconButton>
+        <IconButton style={{ outline: 'none' }}>
+          <Tooltip title="Share note" arrow>
+            <ShareIcon
+              id="Refs"
+              style={{backgroundColor: 'white', color: 'gray'}}
+              onClick={() => console.log("share placehold")}
+              />
+          </Tooltip>
+        </IconButton>
       </Stack>
       <Stack>
-        <Box>
-          <p>place holder reference content</p>
-        </Box>        
-      </Stack>
+          <Box>
+          {expandRefClick ? refNotes.map((ref) => {return (
+              <Box>
+                <Divider/>
+                <Typography style={{fontStyle: 'normal', fontSize: 13, color: 'black', marginTop: '5px'}}>{ref.title}</Typography>
+                <Typography style={{fontStyle: 'normal', fontSize: 11, color: 'gray'}}>{ref.note.substring(0, 250)  + '...'}</Typography>
+                <Typography style={{fontStyle: 'normal', fontSize: 10, color: 'gray', marginBottom: '5px'}}>{ref.page_number}</Typography>
+              <Divider/>
+              </Box>
+            )}) : <></>} 
+          </Box>        
+        </Stack>
       </Paper>
     </Box>
   )}

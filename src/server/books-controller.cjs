@@ -64,7 +64,7 @@ exports.noteComments = async (req, res) => {
 exports.noteRefs = async (req, res) => {
   console.log(req.params.isbn)
   await knex
-    .select('first_note_id', 'first_book_id', 'second_note_id', 'second_book_id', 'comment', 'time_created')
+    .select('first_note_id', 'first_book_id', 'second_note_id', 'second_book_id', 'comment', 'time_created', 'reference_id')
     .from('cross_references')
     .where('first_book_id', req.params.isbn)
     .orWhere('second_book_id', req.params.isbn)
@@ -76,6 +76,39 @@ exports.noteRefs = async (req, res) => {
       res.json({message: `Failed to retrieve note refs, ${err}`})
     })
 } 
+
+exports.singleNoteRef = async (req, res) => {
+  console.log(req.query)
+
+  await knex
+  .select('note_id', 'note', 'page_number', 'title')
+  .from('notes')
+  .where('note_id', req.query.noteId)
+  .fullOuterJoin('books', 'book_id', 'books.isbn')
+  .then(noteRef => {
+    res.json(noteRef)
+  })
+  .catch(err => {
+    res.json({message: `Failed, ${err}`})
+  })
+
+
+}
+exports.noteRef = async (req, res) => {
+  await knex
+  .select('note_id', 'note', 'page_number', 'title')
+  .from('notes')
+  .where((builder) => builder.whereIn('note_id', req.query.noteId))
+  .fullOuterJoin('books', 'book_id', 'books.isbn')
+  .then(noteRef => {
+    res.json(noteRef)
+  })
+  .catch(err => {
+    res.json({message: `Failed, ${err}`})
+  })
+}
+
+
 
 // Create new book
 exports.booksCreate = async (req, res) => {

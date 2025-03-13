@@ -1,7 +1,9 @@
-regex search
-isbn with letter on get notes
 view collection click with notes displayed
 refresh list on add book
 stop duplicate adds
 add category column
 delete and edit for all comments notes and books
+share button
+router
+user login
+optimize collection table for phone view

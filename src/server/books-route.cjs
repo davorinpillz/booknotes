@@ -15,6 +15,8 @@ router.get('/:isbn/notes', booksRoutes.bookNotes)
 router.get('/:isbn/bookcomments', booksRoutes.bookComments)
 router.get('/:noteId/notecomments', booksRoutes.noteComments)
 router.get('/:isbn/noterefs', booksRoutes.noteRefs)
+router.get('/noteref', booksRoutes.noteRef)
+router.get('/singleref', booksRoutes.singleNoteRef)
 router.get('/', booksRoutes.test)
 
 // Add route for POST request to create new book
