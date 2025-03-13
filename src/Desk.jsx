@@ -112,7 +112,7 @@ export default function Desk() {
   //event handlers
   function handleIsbnInput(event) {
     event.preventDefault()
-    setIsbn(e.target.value.replace(/\D/g, ""))
+    setIsbn(event.target.value.replace(/\D/g, ""))
   }
   function handleSearchClick() {
     document.getElementById('isbn-search').value=""
